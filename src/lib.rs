@@ -1,19 +1,4 @@
 ///! RocksDB implementation for the cita-trie.
-///!
-///! #Example:
-///!
-///!```
-///! // Open or create a database in the 'data' directory
-///! let mut db = RocksDb::new("data");
-///!
-///! // Create the trie
-///! let mut trie = PatriciaTrie::new(&mut db, RLPNodeCodec::default());
-///!
-///! // Insert stuff
-///! trie.insert(b"hello-1", b"value-1").unwrap();
-///! ...
-///!```
-///!
 extern crate cita_trie;
 extern crate rocksdb;
 
