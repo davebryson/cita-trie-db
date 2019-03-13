@@ -1,0 +1,12 @@
+[package]
+name = "cita-trie-db"
+version = "0.1.0"
+authors = ["Dave Bryson <daveb@miceda.org>"]
+edition = "2018"
+license = "Apache 2.0"
+description = "RocksDb storage implementation for the cita-trie merkle trie"
+
+[dependencies]
+cita_trie = "0.1.6"
+rocksdb = {package="parity-rocksdb", version="0.5.0"}
+
