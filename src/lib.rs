@@ -17,8 +17,7 @@
 extern crate cita_trie;
 extern crate rocksdb;
 
-use cita_trie::db::DB;
-use rocksdb::{Writable, DB as RDB};
+use rocksdb::{Writable, DB};
 use std::error;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -49,15 +48,18 @@ impl error::Error for RocksDbError {
 }
 
 /// Handle to RocksDb
+#[derive(Clone)]
 pub struct RocksDb {
-    db: Arc<rocksdb::DB>,
+    inner: Arc<rocksdb::DB>,
 }
 
 impl RocksDb {
     /// Create or open a database at the give path.  Will panic on error
     pub fn new(dir: &str) -> Self {
-        match RDB::open_default(dir) {
-            Ok(db) => RocksDb { db: Arc::new(db) },
+        match DB::open_default(dir) {
+            Ok(db) => RocksDb {
+                inner: Arc::new(db),
+            },
             Err(reason) => panic!(reason),
         }
     }
@@ -70,11 +72,11 @@ impl fmt::Debug for RocksDb {
     }
 }
 
-impl DB for RocksDb {
+impl cita_trie::db::DB for RocksDb {
     type Error = RocksDbError;
     /// Get a value from the database.
     fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>, Self::Error> {
-        match self.db.get(key) {
+        match self.inner.get(key) {
             Ok(Some(val)) => Ok(Some(val.to_owned())),
             Err(reason) => Err(RocksDbError::from(reason)),
             Ok(None) => Err(RocksDbError::from(String::from("Key not found"))),
@@ -83,7 +85,9 @@ impl DB for RocksDb {
 
     /// Insert a key value
     fn insert(&mut self, key: &[u8], value: &[u8]) -> Result<(), Self::Error> {
-        self.db.put(key, value).map_err(|r| RocksDbError::from(r))
+        self.inner
+            .put(key, value)
+            .map_err(|r| RocksDbError::from(r))
     }
 
     /// Check if a key is in the database
@@ -96,7 +100,7 @@ impl DB for RocksDb {
 
     /// Remove a key/value pair
     fn remove(&mut self, key: &[u8]) -> Result<(), Self::Error> {
-        self.db.delete(key).map_err(|r| RocksDbError::from(r))
+        self.inner.delete(key).map_err(|r| RocksDbError::from(r))
     }
 }
 
