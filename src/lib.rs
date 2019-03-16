@@ -64,7 +64,7 @@ impl cita_trie::db::DB for RocksDb {
         match self.inner.get(key) {
             Ok(Some(val)) => Ok(Some(val.to_owned())),
             Err(reason) => Err(RocksDbError::from(reason)),
-            Ok(None) => Err(RocksDbError::from(String::from("Key not found"))),
+            _ => Ok(None),
         }
     }
 
